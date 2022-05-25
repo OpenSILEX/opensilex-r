@@ -1,0 +1,15 @@
+Package: opensilexR
+Title: Helper Tools To Quiclky Retrieve Data From An Opensilex Instance
+Version: 0.0.0.9000
+Authors@R: 
+    person("Guilhem", "Heinrich", , "guilhem.heinrich@gmail.com", role = c("aut", "cre"),)
+Description: Provide various functions to ease quicly retrieving data from an opensilex instance.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.0
+Imports: 
+    dplyr,
+    httr,
+    jsonlite,
+    magrittr
