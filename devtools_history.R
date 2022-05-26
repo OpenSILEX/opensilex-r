@@ -4,3 +4,4 @@ usethis::use_package('jsonlite')                  # Use jsonlite package
 usethis::use_build_ignore("devtools_history.R")   # Ignore this file while checking
 usethis::use_package('dplyr')                     # Use dplyr package
 usethis::use_pipe(export = TRUE)                  # Use magrittr pipe
+usethis::use_package('rlang')                     # Use rlang package
