@@ -15,27 +15,35 @@ There is (mainly) two ways this package can be used: either directly to quickly 
 
 ## Quick data example
 
-Retrieve data from the public Sixtine's opensilex instance.
-
+Retrieve data from the public phis's opensilex public instance.
+```R
+configuration <- list(
+  host = "http://opensilex.org:8084/rest",
+  user = "admin@opensilex.org",
+  password = "admin",
+  experiment_uri = "http://www.phenome-fppn.fr/m3p/ARCH2017-03-30",
+  scientific_object_type = "vocabulary:Plant" 
+)
+```
 Let's start with scientific object modalities:
 ```R
-opensilexR::os_modality(
-    host = "https://sixtine.mistea.inrae.fr/rest",
-    user = "admin@opensilex.org",
-    password = "admin",
-    experiment_uri = "sixtine:set/experiments#qualite-du-fruit-2017",
-    scientific_object_type = "http://www.opensilex.org/vocabulary/oeso#SubPlot")
+opensilexR::get_scientific_object_modalities(
+    host = configuration$host,
+    user = configuration$user,
+    password = configuration$password,
+    experiment_uri = configuration$experiment_uri,
+    scientific_object_type = configuration$scientific_object_type
 )
 ```
 
 and the actual data ("directly") linked to those: 
 ```R
-opensilexR::data_import(
-    host = "https://sixtine.mistea.inrae.fr/rest",
-    user = "admin@opensilex.org",
-    password = "admin",
-    experiment_uri = "sixtine:set/experiments#qualite-du-fruit-2017",
-    scientific_object_type = "http://www.opensilex.org/vocabulary/oeso#SubPlot")
+opensilexR::get_data(
+    host = configuration$host,
+    user = configuration$user,
+    password = configuration$password,
+    experiment_uri = configuration$experiment_uri,
+    scientific_object_type = configuration$scientific_object_type
 )
 ```
 

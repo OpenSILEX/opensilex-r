@@ -14,11 +14,11 @@
 #' @importFrom utils URLencode read.csv
 #' @importFrom rlang .data
 #' @examples
-data_import <- function(host,
-                        user,
-                        password,
-                        experiment_uri,
-                        scientific_object_type) {
+get_data <- function(host,
+                     user,
+                     password,
+                     experiment_uri,
+                     scientific_object_type) {
   token <- opensilexR::get_token(host, user, password)
 
   # Retrieve SO per type
@@ -59,10 +59,15 @@ data_import <- function(host,
   get_result <-
     httr::GET(
       call1,
-      httr::add_headers(Authorization = token, `Content-Type` = "application/json")
+      httr::add_headers(
+        Authorization = token,
+         `Content-Type` = "application/json")
     )
   get_result_text <- httr::content(get_result, "text")
-  result_df <- utils::read.csv(text = get_result_text, sep = ",", header = TRUE)
-  final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
+  result_df <- utils::read.csv(text = get_result_text, header = TRUE)
+  # Next not working properly, fixed following
+  # https://stackoverflow.com/a/70467345
+  # final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
+  final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
   return(final_df)
 }

@@ -12,11 +12,11 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom utils read.csv
 #' @examples
-os_modality <- function(host,
-                        user,
-                        password,
-                        experiment_uri,
-                        scientific_object_type) {
+get_scientific_object_modalities <- function(host,
+                                             user,
+                                             password,
+                                             experiment_uri,
+                                             scientific_object_type) {
   token <- opensilexR::get_token(
     host = host,
     user = user,
@@ -47,7 +47,6 @@ os_modality <- function(host,
   # The two header lines doesn't render well -> need to choose one
   header_lines <- utils::read.csv(
     text = post_result_text,
-    sep = ";",
     nrows = 2,
     header = FALSE
   )
@@ -57,7 +56,7 @@ os_modality <- function(host,
   )
   result_df <- read.csv(
     text = post_result_text,
-    sep = ";", skip = 2,
+    skip = 2,
     col.names = header
   )
   return(result_df)
