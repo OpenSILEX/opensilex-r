@@ -27,7 +27,7 @@ configuration <- list(
 ```
 Let's start with scientific object modalities:
 ```R
-opensilexR::get_scientific_object_modalities(
+os_modalities <- opensilexR::get_scientific_object_modalities(
     host = configuration$host,
     user = configuration$user,
     password = configuration$password,
@@ -38,7 +38,7 @@ opensilexR::get_scientific_object_modalities(
 
 and the actual data ("directly") linked to those: 
 ```R
-opensilexR::get_data(
+data <- opensilexR::get_data(
     host = configuration$host,
     user = configuration$user,
     password = configuration$password,
