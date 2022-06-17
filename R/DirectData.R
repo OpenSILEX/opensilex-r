@@ -5,6 +5,7 @@
 #' @param password opesnielx user's password
 #' @param experiment_uri uri of the targeted experiment
 #' @param scientific_object_type uri of the targeted scientific object type
+#' @param variables \[OPTIONAL\] vector of variables's uri
 #'
 #' @return
 #' @export
@@ -18,7 +19,8 @@ get_data <- function(host,
                      user,
                      password,
                      experiment_uri,
-                     scientific_object_type) {
+                     scientific_object_type,
+                     variables = NULL) {
   token <- opensilexR::get_token(host, user, password)
 
   # Retrieve SO per type
@@ -26,20 +28,16 @@ get_data <- function(host,
     paste(
       host,
       "/core/scientific_objects",
-      "?",
-      "experiment=",
-      utils::URLencode(experiment_uri, reserved = TRUE),
-      # Only one
-      "&",
-      paste0(
-        "rdf_types=",
-        URLencode(scientific_object_type, reserved = TRUE),
-        collapse = "&"
-      ),
-      "&page_size=10000",
-      sep = ""
+      opensilexR::parse_query_parameters(
+        page_size = 10000,
+        experiment = experiment_uri,
+        rdf_types = scientific_object_type,
+        variables = variables
+      )
     )
-  get_result <- httr::GET(call1, httr::add_headers(Authorization = token))
+  get_result <- opensilexR::parse_status(
+    httr::GET(call1, httr::add_headers(Authorization = token))
+  )
   get_result_text <- httr::content(get_result, "text")
   get_result_json <- jsonlite::fromJSON(get_result_text, flatten = TRUE)
   so_list <- get_result_json$result
@@ -49,20 +47,25 @@ get_data <- function(host,
     user = user,
     password = password
   )
+
   call1 <- paste0(
     host,
     "/core/data/export",
-    "?experiments=",
-    utils::URLencode(experiment_uri, reserved = TRUE),
-    "&mode=long"
+    opensilexR::parse_query_parameters(
+      page_size = 10000,
+      experiments = experiment_uri,
+      mode = "long"
+    )
   )
-  get_result <-
+
+  get_result <- opensilexR::parse_status(
     httr::GET(
       call1,
       httr::add_headers(
         Authorization = token,
          `Content-Type` = "application/json")
     )
+  )
   get_result_text <- httr::content(get_result, "text")
   result_df <- utils::read.csv(text = get_result_text, header = TRUE)
   # Next not working properly, fixed following

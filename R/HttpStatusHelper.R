@@ -1,3 +1,45 @@
+#' parse_status
+#'
+#' Parse an http response and display a message and a log
+#' @param response_object object of class httr:response
+#'
+#' @return The same response_object passed in
+#' @export
+#' @importFrom logging loginfo logfine logwarn logerror
+#' @examples
+parse_status <- function(response_object) {
+    ch_status_code <- as.character(response_object$status_code)
+    message <- status_code[[ch_status_code]]
+    if (is.null(message)) {
+        message <- "Unknown status code"
+    }
+    switch(substr(ch_status_code, 1, 1),
+        "1" = {
+            print("Informational Response.\n See logs for more information")
+            logging::loginfo(message)
+        },
+        "2" = {
+            print("Querry Success")
+            logging::logfine(message)
+        },
+        "3" = {
+            print("Redirection event.\n See logs for more information")
+            logging::logwarn(message)
+        },
+        "4" = {
+            print("Client error.\n See logs for more information")
+            logging::logerror(message)
+        },
+        "5" = {
+            print("Server error.\n See logs for more information")
+            logging::logerror(message)
+        }
+    )
+    return(response_object)
+}
+
+
+
 # Status code from https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 status_code <- list(
     # 1xx Informational Response
@@ -5,7 +47,7 @@ status_code <- list(
     "101" = "Switching Protocols",
     "102" = "Processing (WebDAV; RFC 2518)",
     "103" = "Early Hints (RFC 8297)",
-    # 2xx success
+    # 2xx Success
     "200" = "OK",
     "201" = "Created",
     "202" = "Accepted",
@@ -74,30 +116,5 @@ status_code <- list(
     "495" = "[nginx] SSL Certificate Error",
     "496" = "[nginx] SSL Certificate Required",
     "497" = "[nginx] HTTP Request Sent to HTTPS Port",
-    "499" = "[nginx] Client Closed Request"   
+    "499" = "[nginx] Client Closed Request"
 )
-
-parse_status <- function(response_object) {
-    ch_status_code <- as.character(response_object$status_code)
-    message <- status_code[[ch_status_code]]
-    if (is.null(message)) {
-        message <- "Unknown status code"
-    }
-    switch(substr(ch_status_code, 1, 1),
-    "1" = {
-        logging::loginfo(message)
-        },
-    "2" = {
-        logging::logfine(message)
-        },
-    "3" = {
-        logging::logwarn(message)
-        },
-    "4" = {
-        logging::logerror(message)
-        },
-    "5" = {
-        logging::logerror(message)
-        },
-    )
-}

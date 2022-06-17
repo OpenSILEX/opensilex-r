@@ -4,7 +4,14 @@
 \alias{get_data}
 \title{Direct Data import}
 \usage{
-get_data(host, user, password, experiment_uri, scientific_object_type)
+get_data(
+  host,
+  user,
+  password,
+  experiment_uri,
+  scientific_object_type,
+  variables = NULL
+)
 }
 \arguments{
 \item{host}{url of the hosting opensilex service}
@@ -16,6 +23,8 @@ get_data(host, user, password, experiment_uri, scientific_object_type)
 \item{experiment_uri}{uri of the targeted experiment}
 
 \item{scientific_object_type}{uri of the targeted scientific object type}
+
+\item{variables}{[OPTIONAL] vector of variables's uri}
 }
 \description{
 Direct Data import

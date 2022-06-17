@@ -12,6 +12,7 @@ Imports:
     dplyr,
     httr,
     jsonlite,
+    logging,
     magrittr,
     rlang
 Suggests: 

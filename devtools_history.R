@@ -5,3 +5,4 @@ usethis::use_build_ignore("devtools_history.R")   # Ignore this file while check
 usethis::use_package('dplyr')                     # Use dplyr package
 usethis::use_pipe(export = TRUE)                  # Use magrittr pipe
 usethis::use_package('rlang')                     # Use rlang package
+usethis::use_package('logging')                   # Use rlang package
