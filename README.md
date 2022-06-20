@@ -244,4 +244,4 @@ get_result_json <- jsonlite::fromJSON(get_result_text, flatten = TRUE)
 get_result_json$result
 ```
 
-## Known issue
+## Known issues
