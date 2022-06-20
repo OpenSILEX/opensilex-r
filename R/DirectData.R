@@ -25,7 +25,7 @@ get_data <- function(host,
 
   # Retrieve SO per type
   call1 <-
-    paste(
+    paste0(
       host,
       "/core/scientific_objects",
       opensilexR::parse_query_parameters(

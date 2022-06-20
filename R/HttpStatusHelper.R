@@ -16,23 +16,38 @@ parse_status <- function(response_object) {
     switch(substr(ch_status_code, 1, 1),
         "1" = {
             print("Informational Response.\n See logs for more information")
-            logging::loginfo(message)
+            logging::loginfo(paste(
+                ch_status_code,
+                message)
+            )
         },
         "2" = {
             print("Querry Success")
-            logging::logfine(message)
+            logging::logfine(paste(
+                ch_status_code,
+                message)
+            )
         },
         "3" = {
             print("Redirection event.\n See logs for more information")
-            logging::logwarn(message)
+            logging::logwarn(paste(
+                ch_status_code,
+                message)
+            )
         },
         "4" = {
             print("Client error.\n See logs for more information")
-            logging::logerror(message)
+            logging::logerror(paste(
+                ch_status_code,
+                message)
+            )
         },
         "5" = {
             print("Server error.\n See logs for more information")
-            logging::logerror(message)
+            logging::logerror(paste(
+                ch_status_code,
+                message)
+            )
         }
     )
     return(response_object)

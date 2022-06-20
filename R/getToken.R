@@ -11,14 +11,15 @@
 #' @importFrom jsonlite fromJSON
 #' @examples
 get_token <- function(host, user = "admin@opensilex.org", password = "admin") {
-  call0 <- paste(host, "/security/authenticate", sep = "")
+  call0 <- paste0(host, "/security/authenticate")
   post_authenticate <- opensilexR::parse_status(
       httr::POST(
         call0,
-        body = paste('{
+        body = paste0('{
           "identifier": "', user, '",
           "password": "', password, '"
-          }', sep = ""),
+          }'
+        ),
         httr::add_headers(
           `Content-Type` = "application/json",
           Accept = "application/json"

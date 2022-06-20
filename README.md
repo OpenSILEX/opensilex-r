@@ -16,6 +16,8 @@ There is (mainly) two ways this package can be used: either directly to quickly 
 ## Quick data example
 
 Retrieve data from the public phis's opensilex public instance.
+
+
 Let start by setting up authaurization and our target
 
 ```R
@@ -67,7 +69,7 @@ data <- opensilexR::get_data(
     )
 )
 ```
-data is also a *data.frame*
+data is also a *data.frame*.
 ```R
 summary(data)
 head(data)
@@ -76,44 +78,170 @@ Those two functions should get you started very quick, but for the ones who want
 See next chapter !
 ## Methodology
 The two previous function mainly use the *httr* and *jsonlite* packages. Those are considered quite "low level" and should work on a vast spectre of R versions.
-To make your own call, we can take a look at the implementation of the previous function to have a rough idea of how we can handle the query, and at the api-docs of the opensilex instance you want to interract with.
+To make your own call, we will take a look at the implementation of the previous function to have a rough idea of how we can handle the query, and we will link it to the api-docs of the opensilex instance you want to interract with (or any other rest API made by *swagger/openAPI*).
 
-### Is it a GET, a POST, or something else ?
+We can decompose an http request into three parts. Those are:
+ 1) The request type
+ 2) The url path
+ 3) The various parameters
 
-### Is the parameters in the body ?
+To better explain how to interact with a RESTFUL API, I will emphaze the correspondance between an *httr* request and the api-docs (made by *swagger/openAPI*).
 
-### Take a look at the header
-## Known issue
+We will consider the following three annotated screenshot from an opensilex/api-docs instance (made by *swagger/openAPI*).
 
-## Using the opensilex api example
+1) Figure 1: the **GET /core/annotation**
+![figue 1: GET annotation](anno_oslx.png "figue 1: GET annotation")
 
-A simple call to retrieve all experiments of the SIXTINE instance
+2) Figure 2: the **POST /security/authenticate**
+![figue 2: POST authentification](auth_oslx.png "figue 2: POST authentification")
+
+3) Figure 3: the **GET /core/data/{uri}**
+![figue 3: GET data](data_oslx.png "figue 3: GET data")
+
+
+In those three screeshots:
+- the underlined orange text is information relative to the request type,
+- the surrounded text is inforamtion relative to the path,
+- the highlighted text is information relative to parameters with:
+  - header parameters in green
+  - path parameters in tranparent/surrounded (same as path information)
+  - body parameters in blue
+  - query parameters in red
+
+Bold parameters are required parameters.
+
+As I think some example are better that a long speech, we will see how each of those api-docs screeshots can be "translated" in R using this package, in conjunction with *httr* and *jsonlite*.
+
+
+
+1) the **GET /core/annotation**
+The first query has the form that we will most widely use as a data consumer: a GET query, with various query parameters, which require an authentication token.
+We will use the utilites functions provided in the package to ease the boilerplate code, but this is not mandatory.
 ```R
-opensilexR::data_import(
-    host = "https://sixtine.mistea.inrae.fr/rest",
-    user = "admin@opensilex.org",
-    password = "admin",
-    experiment_uri = "sixtine:set/experiments#qualite-du-fruit-2017",
-    scientific_object_type = "http://www.opensilex.org/vocabulary/oeso#SubPlot")
+# Use the included get_token function to retrieve token
+token <- opensilexR::get_token(
+  host = configuration$host,
+  user = configuration$user,
+  password = configuration$password
 )
 
-token <- opensilexR::get_token(
-    host = "https://sixtine.mistea.inrae.fr/rest",
-    user = "admin@opensilex.org",
-    password = "admin",
+# Write the URL of the query
+call1 <-
+  paste0(
+    configuration$host,
+    "/core/annotations",
+    # Use the utilitary function nof the package to parse a list of query parameters.
+    # Or don't if you does'nt want.
+    opensilexR::parse_query_parameters(
+      description = "The pest attack",
+      target = "http://www.opensilex.org/demo/2018/o18000076",
+      motivation = "http://www.w3.org/ns/oa#describing",
+      author = "http://opensilex.dev/users#Admin.OpenSilex",
+      order_by = "author=asc",
+      page = 0,
+      page_size = 20
+    )
+  )
+print(call1)
+# NOTE: the previous print should be exactly identical to the surrounded requested URL in request URL part of the first picture
+
+# Use the utilitary function to parse the response object,
+# Logging information about the request, 
+# and printing the global status
+get_result <- opensilexR::parse_status(
+  # This request is a GET request
+  httr::GET(call1, httr::add_headers(Authorization = token))
 )
-url <-
-  paste0("https://sixtine.mistea.inrae.fr/rest",
-         "/core/experiments",
-         "?page_size=10000")
-get_result <-
-  httr::GET(url, httr::add_headers(Authorization = token))
+# If everything is fine, you should see a "Querry success" message
+# Else you have a short description of the problem, with additional information in the log (see logging package)
+
+# Parse the Response content as text, then interpret it as a JSON, which is then transformed as a R's named list.
+# Note that this information is given by the Content-Type: application/json header, which is by default (that's why we don't add it in the header part of the request)
 get_result_text <- httr::content(get_result, "text")
-get_result_json <-
-  jsonlite::fromJSON(get_result_text, flatten = TRUE)
-experiments_df <- get_result_json$result
-colnames(experiments_df)[which(names(experiments_df) == "uri")] <-
-  "experiment_uri"
-colnames(experiments_df)[which(names(experiments_df) == "name")] <-
-  "experiment_label"
+get_result_json <- jsonlite::fromJSON(get_result_text, flatten = TRUE)
+get_result_json$result
+# Although, as the default query parameters doesn't refer to anything in our base,
+# the result is actually empty
+
 ```
+
+2) the **POST /security/authenticate**
+This code snippet is the core of the opensilexR::get_token utilitary function.
+
+
+```R
+call0 <- paste0(host, "/security/authenticate")
+print(call0)
+# NOTE: the previous print should be exactly identical to the surrounded requested URL in request URL part of the second picture. It is quite a short URL, as the authentication credential are passed into the body of the request.
+
+
+post_authenticate <- opensilexR::parse_status(
+  # This request is a POST request
+    httr::POST(
+      call0,
+      # It is a POST request, which have its arguments passed as a body parameter, and *not* as a multiple query parmaters like previous request.
+      # As we precised the Content-Type to be an application/json format, we need to pass this argument as a valid JSON object.
+      body = paste0('{
+        "identifier": "', configuration$user, '",
+        "password": "', configuration$password, '"
+        }'
+      ),
+      httr::add_headers(
+        `Content-Type` = "application/json",
+        Accept = "application/json"
+    )
+  )
+)
+
+# Handling the response back is done the same way as previously:
+# by casting the buffer as "text", and then this text as JSON.
+post_authenticate_text <- httr::content(post_authenticate, "text")
+post_authenticate_json <- jsonlite::fromJSON(
+  post_authenticate_text,
+  flatten = TRUE
+)
+
+# Finaly, we just pick the token
+token <- post_authenticate_json$result$token
+```
+
+3) the **GET /core/data/{uri}**
+This request is very similar to the first one, but we pass the uri of our intended datum as a path parameter, and not as a query parameter. Both "live" in the URL, but this one is in the path, before any query parameters, delimited by a "?" symbol, and subsequent "&" symbols.
+```R
+# Use the included get_token function to retrieve token
+token <- opensilexR::get_token(
+  host = configuration$host,
+  user = configuration$user,
+  password = configuration$password
+)
+
+# Write the URL of the query
+call1 <-
+  paste0(
+    configuration$host,
+    "/core/data/",
+    utils::URLencode("http://opensilex.dev/id/data/1598857852858", reserved = TRUE)
+  )
+  
+print(call1)
+# NOTE: the previous print should be exactly identical to the surrounded requested URL in request URL part of the third picture
+
+# Use the utilitary function to parse the response object,
+# Logging information about the request, 
+# and printing the global status
+get_result <- opensilexR::parse_status(
+  # This request is a GET request
+  httr::GET(call1, httr::add_headers(Authorization = token))
+)
+# If everything is fine, you should see a "Querry success" message 
+# BUT, as the uri requested is part of the path and that uri does'nt exist on that instance,
+# we get an "Client error.\n See logs for more information" as well as an "ERROR::404 Not Found" logging information
+
+# Parse the Response content as text, then interpret it as a JSON, which is then transformed as a R's named list.
+# Note that this information is given by the Content-Type: application/json header, which is by default (that's why we don't add it in the header part of the request)
+get_result_text <- httr::content(get_result, "text")
+get_result_json <- jsonlite::fromJSON(get_result_text, flatten = TRUE)
+get_result_json$result
+```
+
+## Known issue

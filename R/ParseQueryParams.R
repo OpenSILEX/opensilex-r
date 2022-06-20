@@ -11,7 +11,7 @@
 #' @export
 #' @importFrom utils URLencode
 #' @examples
-parse_query_parameters <- function(query_list, ...) {
+parse_query_parameters <- function(query_list = NULL, ...) {
     final_query_list <- c(query_list, list(...))
     if (is.null(final_query_list)) return("")
 
