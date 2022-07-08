@@ -4,7 +4,7 @@
 \alias{parse_query_parameters}
 \title{parse_query_parameters}
 \usage{
-parse_query_parameters(query_list, ...)
+parse_query_parameters(query_list = NULL, ...)
 }
 \arguments{
 \item{query_list}{A named list}

@@ -10,7 +10,7 @@
 #' @importFrom httr POST content add_headers
 #' @importFrom jsonlite fromJSON
 #' @examples
-get_token <- function(host, user = "admin@opensilex.org", password = "admin") {
+get_token <- function(host, user = "guest@opensilex.org", password = "guest") {
   call0 <- paste0(host, "/security/authenticate")
   post_authenticate <- opensilexR::parse_status(
       httr::POST(

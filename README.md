@@ -23,8 +23,8 @@ Let's start by setting up authorization and our target:
 ```R
 configuration <- list(
   host = "http://opensilex.org:8084/rest",
-  user = "admin@opensilex.org",
-  password = "admin",
+  user = "guest@opensilex.org",
+  password = "guest",
   experiment_uri = "http://www.phenome-fppn.fr/m3p/ARCH2017-03-30",
   scientific_object_type = "vocabulary:Plant" 
 )
