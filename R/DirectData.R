@@ -20,8 +20,10 @@ get_data <- function(host,
                      password,
                      experiment_uri,
                      scientific_object_type,
-                     variables = NULL) {
-  token <- opensilexR::get_token(host, user, password)
+                     variables = NULL,
+                     mode = "long") {
+  token <- opensilexR::get_token(host=host, user=user, password=password)
+  stopifnot(mode %in% c("long","wide"))
 
   # Retrieve SO per type
   call1 <-
@@ -42,11 +44,6 @@ get_data <- function(host,
   get_result_json <- jsonlite::fromJSON(get_result_text, flatten = TRUE)
   so_list <- get_result_json$result
 
-  token <- opensilexR::get_token(
-    host = host,
-    user = user,
-    password = password
-  )
 
   call1 <- paste0(
     host,
@@ -54,7 +51,7 @@ get_data <- function(host,
     opensilexR::parse_query_parameters(
       page_size = 10000,
       experiments = experiment_uri,
-      mode = "long"
+      mode = mode
     )
   )
 
@@ -67,10 +64,16 @@ get_data <- function(host,
     )
   )
   get_result_text <- httr::content(get_result, "text")
-  result_df <- utils::read.csv(text = get_result_text, header = TRUE)
-  # Next not working properly, fixed following
-  # https://stackoverflow.com/a/70467345
-  # final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
-  final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
+  if(mode == "wide"){
+    # skip variable description lines
+    result_df <- utils::read.csv(text = get_result_text, header = TRUE, skip = 4)
+    result_df <- dplyr::filter(result_df, Target.URI %in% so_list$uri)
+  } else if(mode == "long"){
+    result_df <- utils::read.csv(text = get_result_text, header = TRUE)
+    # Next not working properly, fixed following
+    # https://stackoverflow.com/a/70467345
+    # final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
+    final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
+   }
   return(final_df)
 }
