@@ -56,7 +56,7 @@ get_scientific_object_modalities <- function(host,
   )
   result_df <- read.csv(
     text = post_result_text,
-    skip = 2,
+    skip = 1,
     col.names = header
   )
   return(result_df)
