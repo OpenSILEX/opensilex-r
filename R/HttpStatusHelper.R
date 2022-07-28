@@ -22,7 +22,7 @@ parse_status <- function(response_object) {
             )
         },
         "2" = {
-            print("Querry Success")
+            print("Query Success")
             logging::logfine(paste(
                 ch_status_code,
                 message)
