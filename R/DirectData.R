@@ -6,6 +6,7 @@
 #' @param experiment_uri uri of the targeted experiment
 #' @param scientific_object_type uri of the targeted scientific object type
 #' @param variables \[OPTIONAL\] vector of variables's uri
+#' @param mode \[OPTIONAL\] mode of the csv: one of "long" or "wide" (default to "long")
 #'
 #' @return
 #' @export
@@ -22,8 +23,8 @@ get_data <- function(host,
                      scientific_object_type,
                      variables = NULL,
                      mode = "long") {
-  token <- opensilexR::get_token(host=host, user=user, password=password)
-  stopifnot(mode %in% c("long","wide"))
+  token <- opensilexR::get_token(host = host, user = user, password = password)
+  stopifnot(mode %in% c("long", "wide"))
 
   # Retrieve SO per type
   call1 <-
@@ -60,20 +61,21 @@ get_data <- function(host,
       call1,
       httr::add_headers(
         Authorization = token,
-         `Content-Type` = "application/json")
+        `Content-Type` = "application/json"
+      )
     )
   )
   get_result_text <- httr::content(get_result, "text")
-  if(mode == "wide"){
+  if (mode == "wide") {
     # skip variable description lines
     result_df <- utils::read.csv(text = get_result_text, header = TRUE, skip = 4)
-    result_df <- dplyr::filter(result_df, Target.URI %in% so_list$uri)
-  } else if(mode == "long"){
+    result_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
+  } else if (mode == "long") {
     result_df <- utils::read.csv(text = get_result_text, header = TRUE)
     # Next not working properly, fixed following
     # https://stackoverflow.com/a/70467345
     # final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
-    final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
-   }
+  }
+  final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
   return(final_df)
 }
