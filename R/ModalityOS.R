@@ -5,6 +5,7 @@
 #' @param password opesnielx user's password
 #' @param experiment_uri uri of the targeted experiment
 #' @param scientific_object_type uri of the targeted scientific object type
+#' @param header_type header type: one of "initial","translated" or "both
 #'
 #' @return
 #' @export
@@ -16,7 +17,9 @@ get_scientific_object_modalities <- function(host,
                                              user,
                                              password,
                                              experiment_uri,
-                                             scientific_object_type) {
+                                             scientific_object_type,
+                                             header_type = "initial") {
+  stopifnot(header_type %in% c("initial","translated","both"))
   token <- opensilexR::get_token(
     host = host,
     user = user,
@@ -48,16 +51,21 @@ get_scientific_object_modalities <- function(host,
   header_lines <- utils::read.csv(
     text = post_result_text,
     nrows = 2,
-    header = FALSE
+    header = FALSE,
   )
-  header <- paste(header_lines[1, ],
-    header_lines[2, ],
-    sep = "/"
-  )
+  if(header_type == "initial"){
+    header <- header_lines[1,]
+  } else if(header_type == "translated"){
+    header <- header_lines[2,]
+  } else if(header_type == "both"){
+    header <- paste(header_lines[1, ], header_lines[2, ], sep = "/")
+  }
   result_df <- read.csv(
     text = post_result_text,
     skip = 1,
     col.names = header
+    row.names = NULL,
+    check.names = FALSE
   )
   return(result_df)
 }

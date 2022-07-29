@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^devtools_history\.R$
+^anno_oslx.png
+^auth_oslx.png
+^data_oslx.png

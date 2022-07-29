@@ -10,7 +10,8 @@ get_data(
   password,
   experiment_uri,
   scientific_object_type,
-  variables = NULL
+  variables = NULL,
+  mode = "long"
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get_data(
 \item{scientific_object_type}{uri of the targeted scientific object type}
 
 \item{variables}{[OPTIONAL] vector of variables's uri}
+
+\item{mode}{[OPTIONAL] mode of the csv: one of "long" or "wide" (default to "long")}
 }
 \description{
 Direct Data import
