@@ -5,6 +5,7 @@
 #' @param password opesnielx user's password
 #' @param experiment_uri uri of the targeted experiment
 #' @param scientific_object_type uri of the targeted scientific object type
+#' @param header_type header type: one of "initial","translated" or "both
 #'
 #' @return
 #' @export
@@ -17,7 +18,7 @@ get_scientific_object_modalities <- function(host,
                                              password,
                                              experiment_uri,
                                              scientific_object_type,
-                                             header_type="initial") {
+                                             header_type = "initial") {
   stopifnot(header_type %in% c("initial","translated","both"))
   token <- opensilexR::get_token(
     host = host,

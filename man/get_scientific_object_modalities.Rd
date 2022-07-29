@@ -9,7 +9,8 @@ get_scientific_object_modalities(
   user,
   password,
   experiment_uri,
-  scientific_object_type
+  scientific_object_type,
+  header_type = "initial"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ get_scientific_object_modalities(
 \item{experiment_uri}{uri of the targeted experiment}
 
 \item{scientific_object_type}{uri of the targeted scientific object type}
+
+\item{header_type}{header type: one of "initial","translated" or "both}
 }
 \description{
 Scientific Object Modalities
