@@ -52,7 +52,6 @@ get_scientific_object_modalities <- function(host,
     text = post_result_text,
     nrows = 2,
     header = FALSE,
-    sep = ";"
   )
   if(header_type == "initial"){
     header <- header_lines[1,]
@@ -63,10 +62,9 @@ get_scientific_object_modalities <- function(host,
   }
   result_df <- read.csv(
     text = post_result_text,
-    skip = 2,
-    col.names = header,
+    skip = 1,
+    col.names = header
     row.names = NULL,
-    sep = ";",
     check.names = FALSE
   )
   return(result_df)
