@@ -18,8 +18,8 @@ get_scientific_object_modalities <- function(host,
                                              password,
                                              experiment_uri,
                                              scientific_object_type,
-                                             header_type = "initial") {
-  stopifnot(header_type %in% c("initial","translated","both"))
+                                             header_type = "both") {
+  stopifnot(header_type %in% c("initial", "translated", "both"))
   token <- opensilexR::get_token(
     host = host,
     user = user,
@@ -63,7 +63,7 @@ get_scientific_object_modalities <- function(host,
   result_df <- read.csv(
     text = post_result_text,
     skip = 1,
-    col.names = header
+    col.names = header,
     row.names = NULL,
     check.names = FALSE
   )
