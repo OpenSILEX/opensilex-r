@@ -68,14 +68,16 @@ get_data <- function(host,
   get_result_text <- httr::content(get_result, "text")
   if (mode == "wide") {
     # skip variable description lines
-    result_df <- utils::read.csv(text = get_result_text, header = TRUE, skip = 4)
-    result_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
+    result_df <- utils::read.csv(text = get_result_text, header = TRUE, skip = 4,
+                                 check.names = FALSE)
+    result_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target URI"]] %in% so_list$uri)
   } else if (mode == "long") {
-    result_df <- utils::read.csv(text = get_result_text, header = TRUE)
+    result_df <- utils::read.csv(text = get_result_text, header = TRUE,
+                                 check.names = FALSE)
     # Next not working properly, fixed following
     # https://stackoverflow.com/a/70467345
     # final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
   }
-  final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target.URI"]] %in% so_list$uri)
+  final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target URI"]] %in% so_list$uri)
   return(final_df)
 }
