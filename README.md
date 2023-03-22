@@ -259,6 +259,10 @@ get_result_json$result
 
 ## Known issues
 
+- 2023-03-01 :
+
+In ``get_data``function only wide mode is currently supported.
+
 ## Acknowledgments
 
 Guilhem Heinrich- <a href="https://github.com/guilhemheinrich" target="_blank">ID2L</a>
