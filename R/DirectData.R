@@ -22,7 +22,7 @@ get_data <- function(host,
                      experiment_uri,
                      scientific_object_type,
                      variables = NULL,
-                     mode = "long") {
+                     mode = "wide") {
   token <- opensilexR::get_token(host = host, user = user, password = password)
   stopifnot(mode %in% c("long", "wide"))
 

@@ -6,7 +6,8 @@ A set of basic functions to facilitate access to the data of an opensilex instan
 
 ```R
 library(remotes)
-install_github("guilhemheinrich/R-opensilex-package")
+install_github("OpenSILEX/opensilex-r")
+library(opensilexR)
 ```
 
 # Usage
@@ -17,12 +18,11 @@ There is (mainly) two ways this package can be used: either directly to quickly 
 
 Retrieve data from the public phis's opensilex public instance.
 
-
 Let's start by setting up authorization and our target:
 
 ```R
 configuration <- list(
-  host = "http://opensilex.org:8084/rest",
+  host = "http://opensilex.org/sandbox/rest",
   user = "guest@opensilex.org",
   password = "guest",
   experiment_uri = "http://www.phenome-fppn.fr/m3p/ARCH2017-03-30",
@@ -31,6 +31,7 @@ configuration <- list(
 ```
 
 First we will get all data relative to our scientific object: it can be factor level or germplasm for example.
+
 ```R
 os_modalities <- opensilexR::get_scientific_object_modalities(
     host = configuration$host,
@@ -40,13 +41,16 @@ os_modalities <- opensilexR::get_scientific_object_modalities(
     scientific_object_type = configuration$scientific_object_type
 )
 ```
+
 os_modalities is a *data.frame* and can be explored by the usual ways
+
 ```R
 summary(os_modalities)
 head(os_modalities)
 ```
 
-and to retrieve the actual data ("directly") linked to those scientific objects: 
+and to retrieve the actual data ("directly") linked to those scientific objects:
+
 ```R
 data <- opensilexR::get_data(
     host = configuration$host,
@@ -58,6 +62,7 @@ data <- opensilexR::get_data(
 ```
 
 we can also specified one or more variables
+
 ```R
 data <- opensilexR::get_data(
     host = configuration$host,
@@ -70,7 +75,9 @@ data <- opensilexR::get_data(
     )
 )
 ```
+
 data is also a *data.frame*.
+
 ```R
 summary(data)
 head(data)
@@ -81,11 +88,13 @@ Those two functions should get you started very quickly, but for those who want 
 See next chapter !
 
 ## Methodology
+
 The two previous functions mainly use the *httr* and *jsonlite* packages. Those are considered quite "low level" and should work on a vast range of R versions.
 
 To make your own call, we will take a look at the previous function implementation to get a rough idea of how we can handle the request, and we will link it to the api-docs of the opensilex instance you want to interact with (or any other rest API made by *swagger/openAPI*).
 
 We can decompose an http request into three parts. Those are:
+
  1) The request type
  2) The url path
  3) The various parameters
@@ -103,8 +112,8 @@ We will consider the following three annotated screenshots from an opensilex/api
 3) Figure 3: the **GET /core/data/{uri}**
 ![figue 3: GET data](data_oslx.png "figue 3: GET data")
 
-
 In those three screenshots:
+
 - the underlined orange text is information relative to the request type,
 - the surrounded text is information relative to the path,
 - the highlighted text is information relative to parameters with:
@@ -117,11 +126,10 @@ Bold parameters are required parameters.
 
 As I think some example are better that a long speech, we will see how each of those api-docs screenshots can be "translated" in R using this package, in conjunction with *httr* and *jsonlite*.
 
-
-
 1) the **GET /core/annotation**
 The first query has the form that we will most widely use as a data consumer: a GET query, with various query parameters, which require an authentication token.
 We will use the utilities functions provided in the package to ease the boilerplate code, but this is not mandatory.
+
 ```R
 # Use the included get_token function to retrieve token
 token <- opensilexR::get_token(
@@ -173,7 +181,6 @@ get_result_json$result
 2) the **POST /security/authenticate**
 This code snippet is the core of the opensilexR::get_token utility function.
 
-
 ```R
 call0 <- paste0(host, "/security/authenticate")
 print(call0)
@@ -212,6 +219,7 @@ token <- post_authenticate_json$result$token
 
 3) the **GET /core/data/{uri}**
 This request is very similar to the first one, but we pass the uri of our intended datum as a path parameter, and not as a query parameter. Both "live" in the URL, but this one is in the path, before any query parameters, delimited by a "?" symbol, and subsequent "&" symbols.
+
 ```R
 # Use the included get_token function to retrieve token
 token <- opensilexR::get_token(
@@ -250,3 +258,7 @@ get_result_json$result
 ```
 
 ## Known issues
+
+## Acknowledgments
+
+Guilhem Heinrich- <a href="https://github.com/guilhemheinrich" target="_blank">ID2L</a>
