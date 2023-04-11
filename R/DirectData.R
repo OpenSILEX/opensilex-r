@@ -38,6 +38,7 @@ get_data <- function(host,
         variables = variables
       )
     )
+
   get_result <- opensilexR::parse_status(
     httr::GET(call1, httr::add_headers(Authorization = token))
   )
@@ -48,35 +49,35 @@ get_data <- function(host,
 
   call1 <- paste0(
     host,
-    "/core/data/export",
-    opensilexR::parse_query_parameters(
-      page_size = 10000,
-      experiments = experiment_uri,
-      mode = mode
-    )
+    "/core/data/export"
   )
+  body <- toString(jsonlite::toJSON(list(
+    experiments = I(experiment_uri), # I() allows this to not be unboxed
+    mode = mode,
+    targets = so_list$uri
+  ), auto_unbox = TRUE))
 
   get_result <- opensilexR::parse_status(
-    httr::GET(
+    httr::POST(
       call1,
       httr::add_headers(
         Authorization = token,
         `Content-Type` = "application/json"
-      )
+      ),
+      body = body
     )
   )
   get_result_text <- httr::content(get_result, "text")
+
   if (mode == "wide") {
     # skip variable description lines
     result_df <- utils::read.csv(text = get_result_text, header = TRUE, skip = 4,
                                  check.names = FALSE)
-    result_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target URI"]] %in% so_list$uri)
   } else if (mode == "long") {
     result_df <- utils::read.csv(text = get_result_text, header = TRUE,
                                  check.names = FALSE)
-    # Next not working properly, fixed following
-    # https://stackoverflow.com/a/70467345
-    # final_df <- result_df %>% dplyr::filter(rlang::.data$Target.URI %in% so_list$uri)
+    # exclude an empty column
+    result_df <- result_df[! colnames(result_df) %in% c("")]
   }
   final_df <- result_df %>% dplyr::filter(dplyr::cur_data_all()[["Target URI"]] %in% so_list$uri)
   return(final_df)

@@ -10,7 +10,7 @@ get_scientific_object_modalities(
   password,
   experiment_uri,
   scientific_object_type,
-  header_type = "initial"
+  header_type = "both"
 )
 }
 \arguments{
